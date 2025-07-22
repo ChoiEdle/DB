@@ -31,11 +31,11 @@ select customer_name, customer_id, gender, city, phone, point from customer wher
 -- Q12) 이름에 공백이 들어간 고객의 이름, 아이디, 성별, 지역, 전화번호, 포인트를 조회하세요.
 select customer_name, customer_id, gender, city, phone, point from customer where customer_name like '% %';
 -- Q13) 전화번호가 010으로 시작하지 않는 고객의 이름, 아이디, 성별, 지역, 전화번호, 포인트를 조회하세요.
-select customer_name, customer_id, gender, city, phone, point from customer where phone like '010%';		-- 이거 모르겠다 011 016 이런거 다해야하나..?
+select customer_name, customer_id, gender, city, phone, point from customer where phone not like '010%';
 -- Q14) 포인트가 500,000 이상 '서울' 지역 고객의 이름, 아이디, 성별, 지역, 전화번호, 포인트를 조회하세요.
 select customer_name, customer_id, gender, city, phone, point from customer where point >= 500000 and city = '서울';
 -- Q15) 포인트가 500,000 이상인 '서울' 이외 지역 고객의 이름, 아이디, 성별, 지역, 전화번호, 포인트를 조회하세요.
-select customer_name, customer_id, gender, city, phone, point from customer where point >= 500000 and city = '서울';	-- 이것도 모르것다 지역을 다 넣으란건가..?
+select customer_name, customer_id, gender, city, phone, point from customer where point >= 500000 and city not like '서울';
 -- Q16) 포인트가 400,000 이상인 '서울' 지역 남자 고객의 이름, 아이디, 성별, 지역, 전화번호, 포인트를 조회하세요.
 select customer_name, customer_id, gender, city, phone, point from customer where point >= 400000 and city = '서울' and gender = 'm';
 -- Q17) '강릉' 또는 '원주' 지역 고객의 이름, 아이디, 성별, 지역, 전화번호, 포인트를 조회하세요.
