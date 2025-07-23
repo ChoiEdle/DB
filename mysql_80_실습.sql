@@ -1,3 +1,4 @@
+-- 1일차
 /**
 * MYSQL :: 정형 데이터를 저장하는 데이터베이스
 - SQL 문법을 사용하여 데이터를 CRUD한다.
@@ -282,6 +283,7 @@ select *
 from employee
 where email like '____@%';
 
+-- 2일차
 /*********************************************
 	내장함수 : 숫자함수, 문자함수, 날짜함수
     호출되는 위치 - [컬럼리스트], [조건절의 컬럼명]
@@ -590,6 +592,8 @@ select * from employee;
 use hrdb2019;
 select database();
 show tables;
+
+
 
 
 
