@@ -336,6 +336,7 @@ select emp_id, emp_name, substring(hire_date, 1, 4) as '입사년', substring(hi
 from employee;
 
 -- 2015년도에 입사한 모든 사원 조회
+select * from employee where hire_date like '2015%';
 select * from employee where substring(hire_date,1,4) = '2015';
 
 -- 2018년도에 입사한 정보시스템(sys) 부서 사원 조회
