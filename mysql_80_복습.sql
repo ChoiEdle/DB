@@ -646,11 +646,17 @@ select d.dept_name, u.unit_name, e.emp_name, e.salary, v.duration
 from employee e, department d, vacation v, unit u
 where e.dept_id = d.dept_id and e.emp_id = v.emp_id and d.unit_id = u.unit_id
 order by u.unit_name;
--- 일딴 최대한 노력해본 결관데 이거 이렇게하면 같은 부서에 같은 연봉받는 사람은 같은 사람으로 쳐서 더하지 않나..? 모르것네
+-- 일딴 최대한 노력해본 결관데 이거 이렇게하면 같은 부서에 같은 연봉받는 사람은 같은 사람으로 치지않나..? 모르것네
 select d.dept_name, u.unit_name, sum(distinct(e.salary)), avg(distinct(e.salary)), sum(v.duration)
 from employee e, department d, vacation v, unit u
 where e.dept_id = d.dept_id and e.emp_id = v.emp_id and d.unit_id = u.unit_id 
 group by d.dept_name, u.unit_name
+order by u.unit_name;
+-- 역시나 같은 사람으로 치네...
+select u.unit_name, sum(distinct(e.salary)), avg(distinct(e.salary)), sum(v.duration)
+from employee e, department d, vacation v, unit u
+where e.dept_id = d.dept_id and e.emp_id = v.emp_id and d.unit_id = u.unit_id 
+group by u.unit_name
 order by u.unit_name;
 
 
