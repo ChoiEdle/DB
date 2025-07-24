@@ -380,7 +380,7 @@ select * from product;
 select * from order_detail;
 select * from order_header;
 select * from customer;
-
+select * from category;
 
 show databases;
 use myshop2019;

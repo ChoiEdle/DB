@@ -449,7 +449,8 @@ select dept_id, sum(salary), avg(salary) from employee group by dept_id having s
 -- 연도별 총급여, 평균급여, 사원수, 최대급여, 최소급여 조회
 -- 소수점 x, 3자리 구분
 -- 총급여가 30000 이상인 년도 출력
-select left(hire_date,4), sum(salary), avg(salary), count(*), max(salary), min(salary) from employee group by left(hire_date,4) 
+select left(hire_date,4), format(sum(salary),0), format(avg(salary),0), count(*), format(max(salary),0), format(min(salary),0) 
+from employee group by left(hire_date,4) 
 having sum(salary) >= 30000;
 
 
@@ -631,6 +632,8 @@ select d.dept_name, d.dept_id, sum(e.salary), avg(e.salary), sum(v.duration)
 from employee e, department d, vacation v
 where e.dept_id = d.dept_id and e.emp_id = v.emp_id
 group by d.dept_name, d.dept_id;
+
+
 select d.dept_name, d.dept_id, sum(e.salary), avg(e.salary), sum(v.duration)
 from employee e inner join department d
 on e.dept_id = d.dept_id 
@@ -639,10 +642,18 @@ on e.emp_id = v.emp_id
 group by d.dept_name, d.dept_id;
 
 -- 본부별, 부서의 휴가사용 일수
-select d.dept_name, u.unit_name, sum(e.salary), avg(e.salary), sum(v.duration)
+select d.dept_name, u.unit_name, e.emp_name, e.salary, v.duration
 from employee e, department d, vacation v, unit u
 where e.dept_id = d.dept_id and e.emp_id = v.emp_id and d.unit_id = u.unit_id
-group by d.dept_name, u.unit_name;
+order by u.unit_name;
+-- 일딴 최대한 노력해본 결관데 이거 이렇게하면 같은 부서에 같은 연봉받는 사람은 같은 사람으로 쳐서 더하지 않나..? 모르것네
+select d.dept_name, u.unit_name, sum(distinct(e.salary)), avg(distinct(e.salary)), sum(v.duration)
+from employee e, department d, vacation v, unit u
+where e.dept_id = d.dept_id and e.emp_id = v.emp_id and d.unit_id = u.unit_id 
+group by d.dept_name, u.unit_name
+order by u.unit_name;
+
+
 select d.dept_name, u.unit_name, sum(e.salary), avg(e.salary), sum(v.duration)
 from employee e inner join department d
 on e.dept_id = d.dept_id 
