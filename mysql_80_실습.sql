@@ -785,6 +785,106 @@ where emp_id = (select emp_id from employee where emp_name = '홍길동');
 
 
 
+-- 4일차
+/********************************************************
+	서브쿼리(SubQuery) : 메인 쿼리에 다른 쿼리를 추가하여 실행하는 방식
+    형식 : select [컬럼리스트 : (스칼라서브쿼리)]
+			from [테이블명 : (인라인뷰)]
+			where [조건절 : (서브쿼리)]
+*********************************************************/
+use hrdb2019;
+select database();
+show tables;
+
+-- [서브쿼리]
+-- 정보시스템 부서명의 사원들을 모두 조회
+-- 사번, 사원명, 부서아이디, 폰번호, 급여
+select emp_id, emp_name, dept_id, phone, salary
+from employee 
+where dept_id = (select dept_id from department where dept_name = '정보시스템');
+
+select dept_id from department where dept_name = '정보시스템';
+
+
+-- [스칼라 서브쿼리]
+-- 정보시스템 부서명의 사원들을 모두 조회
+-- 사번, 사원명, 부서아이디, 부서명(부서테이블), 폰번호, 급여
+select 	emp_id, 
+		emp_name, 
+        dept_id, 
+        (select dept_name from department where dept_name = '정보시스템') as dept_name,		-- 권장X
+		phone, 
+        salary
+from employee 
+where dept_id = (select dept_id from department where dept_name = '정보시스템');
+
+select dept_name from department where dept_name = '정보시스템';
+
+-- 홍길동 사원이 속한 부서명을 조회
+-- '=' 로 조건절 비교하는 경우 :: 단일행 서브쿼리
+select dept_name 
+from department 
+where dept_id = (select dept_id from employee where emp_name = '홍길동');
+
+select dept_id from employee where emp_name = '홍길동';
+
+-- 홍길동 사원의 휴가사용 내역을 조회
+select *
+from vacation
+where emp_id = (select emp_id from employee where emp_name = '홍길동');
+
+select emp_id from employee where emp_name = '홍길동';
+
+-- 제3본부에 속한 모든 부서를 조회
+select * 
+from department
+where unit_id = (select unit_id from unit where unit_name = '제3본부');
+
+select unit_id from unit where unit_name = '제3본부';
+
+-- 급여가 가장 높은 사원의 정보 조회
+select *
+from employee
+where salary = (select max(salary) as salary from employee);
+
+select max(salary) as salary from employee;
+
+-- 급여가 가장 낮은 사원의 정보 조회
+select *
+from employee
+where salary = (select min(salary) as salary from employee);
+
+-- 가장 빨리 입사한 사원의 정보 조회
+select * 
+from employee
+where hire_date = (select min(hire_date) as hire_date from employee);
+
+select min(hire_date) from employee;
+
+-- 가장 최근 입사한 사원의 정보 조회
+select * 
+from employee
+where hire_date = (select max(hire_date) as hire_date from employee);
+
+-- [서브쿼리 : 다중행 - in]
+-- '제3본부'에 속한 모든 사원 정보 조회
+select * 
+from employee 
+where dept_id in (select dept_id 
+					from department
+					where unit_id = (select unit_id from unit where unit_name = '제3본부'));
+
+select dept_id 
+from department
+where unit_id = (select unit_id from unit where unit_name = '제3본부');
+
+
+
+
+
+
+
+
 desc employee;
 select * from employee;
 select * from department;
