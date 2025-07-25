@@ -733,52 +733,93 @@ show tables;
 -- [서브쿼리]
 -- 정보시스템 부서명의 사원들을 모두 조회
 -- 사번, 사원명, 부서아이디, 폰번호, 급여
-
+select emp_id, emp_name, dept_id, phone, salary
+from employee
+where dept_id = (select dept_id from department where dept_name = '정보시스템');
+select dept_id from department where dept_name = '정보시스템';
 
 -- [스칼라 서브쿼리]
 -- 정보시스템 부서명의 사원들을 모두 조회
 -- 사번, 사원명, 부서아이디, 부서명(부서테이블), 폰번호, 급여
+select emp_id, emp_name, dept_id, 
+(select dept_name from department where dept_name = '정보시스템') as dept_name, phone, salary
+from employee
+where dept_id = (select dept_id from department where dept_name = '정보시스템');
 
+select dept_name from department where dept_name = '정보시스템';
 -- 홍길동 사원이 속한 부서명을 조회
 -- '=' 로 조건절 비교하는 경우 :: 단일행 서브쿼리
+select dept_name from department where dept_id = (select dept_id from employee where emp_name = '홍길동');
 
 -- 홍길동 사원의 휴가사용 내역을 조회
+select reason from vacation where emp_id = (select emp_id from employee where emp_name = '홍길동');
 
 -- 제3본부에 속한 모든 부서를 조회
+select dept_name from department where unit_id = (select unit_id from unit where unit_name = '제3본부');
 
 -- 급여가 가장 높은 사원의 정보 조회
+select * from employee where salary = (select max(salary) from employee);
 
 -- 급여가 가장 낮은 사원의 정보 조회
+select * from employee where salary = (select min(salary) from employee);
 
 -- 가장 빨리 입사한 사원의 정보 조회
+select * from employee where hire_date = (select min(hire_date) from employee);
 
 -- 가장 최근 입사한 사원의 정보 조회
+select * from employee where hire_date = (select max(hire_date) from employee);
 
 -- [서브쿼리 : 다중행 - in]
 -- '제3본부'에 속한 모든 사원 정보 조회
+select * from employee where dept_id in (select dept_id from department where unit_id = (select unit_id from unit where unit_name = '제3본부'));
+select dept_id from department where unit_id = (select unit_id from unit where unit_name = '제3본부');
+select unit_id from unit where unit_name = '제3본부';
 
 
 -- '제3본부'에 속한 모든 사원들의 휴가 사용 내역 조회
+select * from vacation where emp_id in (select emp_id from employee where dept_id in (select dept_id from department where unit_id = (select unit_id from unit where unit_name = '제3본부')));
+select emp_id from employee where dept_id in (select dept_id from department where unit_id = (select unit_id from unit where unit_name = '제3본부'));
+select dept_id from department where unit_id = (select unit_id from unit where unit_name = '제3본부');
+select unit_id from unit where unit_name = '제3본부';
 
 
 -- [인라인뷰 : 메인쿼리의 테이블 자리에 들어가는 서브쿼리 형식]
 -- [휴가를 사용한 사원정보만!!] 
 -- 사원별 휴가사용 일수를 그룹핑하여, 사원아이디, 사원명, 입사일, 연봉 , 휴가사용일수를 조회해주세요.
-
+select e.emp_id, e.emp_name, e.hire_date, e.salary, v.duration
+from employee e, (select emp_id, sum(duration) as duration from vacation group by emp_id) v
+where e.emp_id = v.emp_id;
+select emp_id, sum(duration) as duration from vacation group by emp_id;
+select * from vacation;
 -- [휴가를 사용한 사원정보 + 사용하지 않은 사원 포함!]
 -- 사원별 휴가사용 일수를 그룹핑하여, 사원아이디, 사원명, 입사일, 연봉, 휴가사용일수를 조회해주세요.
 -- 사용일수 기준 내림차순 정렬
 -- 휴가를 사용하지 않은 사원은 기본값 0
 -- left outer join
-
+select e.emp_id, e.emp_name, e.hire_date, e.salary, ifnull(v.duration, 0) as duration
+from employee e left outer join (select emp_id, sum(duration) as duration from vacation group by emp_id) v
+on e.emp_id = v.emp_id;
 -- 1) 2016 ~ 2017년도 입사한 사원들의 정보 조회
+select * from employee where left(hire_date,4) between '2016' and '2017';
 
 -- 2) 1번의 실행 결과와 vacation 테이블을 조인하여 휴가사용 내역 출력
+select * 
+from employee e, vacation v
+where e.emp_id = v.emp_id and left(hire_date,4) between '2016' and '2017';
 
 -- 1) 부서별 총급여, 평균급여를 구하여 30000 이상인 부서 조회
+select dept_id, sum(salary) as sum, avg(salary) as avg
+from employee
+group by dept_id
+having sum(salary) >= 30000;
 
 -- 2) 1번의 실행 결과와 employee 테이블을 조인하여 사원아이디, 사원명, 급여, 부서아이디, 부서명, 부서별 총급여, 평균급여 출력
-
+select e.emp_id, e.emp_name, e.salary, e.dept_id, d.dept_name, s.sum, s.avg
+from employee e, department d, (select dept_id, sum(salary) as sum, avg(salary) as avg
+from employee
+group by dept_id
+having sum(salary) >= 30000) s
+where e.dept_id = d.dept_id and d.dept_id = s.dept_id;
 
 /********************************************************
 	테이블 결과 합치기 : union, union all
@@ -788,9 +829,30 @@ show tables;
 *********************************************************/
 -- 영업부, 정보시스템 부서의 사원아이디, 사원명, 급여, 부서아이디 조회
 -- union : 영업 부서 사원들이 한번만 출력
-
+select emp_id, emp_name, salary, dept_id
+from employee
+where dept_id = (select dept_id from department where dept_name = '영업')
+union
+select emp_id, emp_name, salary, dept_id
+from employee
+where dept_id = (select dept_id from department where dept_name = '정보시스템')
+union
+select emp_id, emp_name, salary, dept_id
+from employee
+where dept_id = (select dept_id from department where dept_name = '영업');
 
 -- union all : 영업 부서 사원들이 중복되어 출력
+select emp_id, emp_name, salary, dept_id
+from employee
+where dept_id = (select dept_id from department where dept_name = '영업')
+union
+select emp_id, emp_name, salary, dept_id
+from employee
+where dept_id = (select dept_id from department where dept_name = '정보시스템')
+union all
+select emp_id, emp_name, salary, dept_id
+from employee
+where dept_id = (select dept_id from department where dept_name = '영업');
 
 
 /************************************************************
@@ -805,12 +867,27 @@ from information_schema.views
 where table_schema = 'hrdb2019';
 
 -- 부서 총급여가 30000 이상인 테이블
+select e.emp_id, e.emp_name, e.salary, e.dept_id, d.dept_name, s.sum, s.avg
+from employee e, department d, (select dept_id, sum(salary) as sum, avg(salary) as avg
+from employee
+group by dept_id
+having sum(salary) >= 30000) s
+where e.dept_id = d.dept_id and d.dept_id = s.dept_id;
+create view view_salary_sum
+as
+select e.emp_id, e.emp_name, e.salary, e.dept_id, d.dept_name, s.sum, s.avg
+from employee e, department d, (select dept_id, sum(salary) as sum, avg(salary) as avg
+from employee
+group by dept_id
+having sum(salary) >= 30000) s
+where e.dept_id = d.dept_id and d.dept_id = s.dept_id;
 
 
 -- view_salary_sum 실행
+select * from view_salary_sum;
 
 -- view_salary_sum 삭제
-
+drop view view_salary_sum;
 
 /************************************************************
 	DDL(Data Definition Language) : 생성, 수정, 삭제 - 테이블기준
@@ -935,13 +1012,19 @@ select * from emp2;
 *************************************************************/
 show tables;
 select * from emp;
+desc emp;
 
 -- phone(char, 13) 컬럼 추가, null 허용(기존 데이터가 있기 때문)
+alter table emp
+add column phone char(13) null;
 
 -- phone 컬럼의 크기 변경 : char(13) --> char(10)
+alter table emp
+modify column phone char(10);
 
 -- phone 컬럼 삭제
-
+alter table emp
+drop column phone;
 /*++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	데이터 수정(update : U)
     형식 > update [테이블명] 
@@ -954,16 +1037,29 @@ select * from emp;
 set sql_safe_updates = 0;	-- 업데이트 모드 해제
 
 -- 홍길동의 급여를 6000으로 수정
-
+update emp
+set salary = 6000
+where emp_id = 's001';
 
 -- 김유신의 입사날짜를 '20210725'로 수정
-
+update emp
+set hire_date = '20210725'
+where emp_id = 's003';
 
 -- emp2 테이블에 retire_date 컬럼 추가 : date
 -- 기존 데이터는 현재 날짜로 업데이트
 -- 업데이트 완료 후 retire_date 'no null' 설정 변경
-
-
+select * from emp;
+alter table emp
+add column retire_date date null;
+update emp
+set retire_date = curdate()
+where retire_date is null;
+alter table emp
+modify column retire_date date not null;
+desc emp;
+alter table emp
+drop column retire_date;
 /*++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	데이터 삭제(delete : D)
     형식 > delete from [테이블명] 
