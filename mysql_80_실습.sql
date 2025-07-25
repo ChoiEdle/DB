@@ -1011,6 +1011,87 @@ drop view view_salary_sum;
 select * from information_schema.views
 where table_schema = 'hrdb2019';
 
+/************************************************************
+	DDL(Data Definition Language) : 생성, 수정, 삭제 - 테이블기준
+    DML : C(insert), R(select), U(update), D(delete)
+*************************************************************/
+-- 모든 테이블 목록
+show tables;
+
+-- [테이블 생성]
+-- 형식 > create table [테이블명] (
+-- 		컬럼명 데이터타입(크기),
+-- 		...
+-- );
+-- 데이터 타입 : 정수형(int, long), 실수형(float, double), 문자형(char, varchar, longtext..)
+-- 			  이진데이터(longblob), 날짜(date, datetime) ..
+-- char(고정형 문자형) : 크기가 메모리에 고정되는 형식, 예) char(10) --> 3자리만 입력 : 7자리 낭비
+-- varchar(가변형 문자형) : 실제 저장되는 데이터 크기에 따라 메모리가 변경되는 형식 
+-- 						varchar(10) --> 3자리 입력 : 메모리에 실제 3자리 공간만 생성
+-- longtext : 문장형태로 다수의 문자열을 저장
+-- longblob : 이진데이터 타입의 이미지, 동영상 등 데이터 저장
+-- date : 년, 월, 일 -> curdate()
+-- datetime : 년, 월, 일, 시, 분, 초 -> sysdate(), now()
+
+-- emp 테이블 생성
+-- emp_id : (char, 4), ename : (varchar, 10), gender : (char,1), hire_date : (datetime), salary : (int)
+show tables;
+create table emp(
+	emp_id		char(4),
+    ename		varchar(10),
+    gender		char(1),
+    hire_date	datetime,
+    salary		int
+);
+
+select * from information_schema.tables
+where table_schema = 'hrdb2019';
+
+desc emp;
+
+-- [테이블 삭제]
+-- 형식 : drop table [테이블명]
+show tables;
+drop table emp;
+
+-- [테이블 복제]
+-- 형식 : create table [테이블명]
+-- 		 as [SQL 정의]
+
+-- employee 테이블을 복제하여 emp 테이블 생성
+create table emp
+as
+select * from employee;
+
+select * from emp;
+desc employee;
+desc emp;
+
+-- 2016년도에 입사한 사원의 정보를 복제 : employee_2016
+create table employee_2016
+as
+select * from employee where left(hire_date,4) = '2016';
+
+show tables;
+select * from employee_2016;
+
+/*+++++++++++++++++++++++++++++++++++++++++
+	데이터 생성(insert : C)
+    형식 > insert into [테이블명] {컬럼리스트...}
+    values(데이터1, 데이터2 ...)
++++++++++++++++++++++++++++++++++++++++++++*/
+show tables;
+desc emp;
+
+
+
+
+
+
+desc employee;
+desc vacation;
+select * from employee;
+
 
 
 
