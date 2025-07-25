@@ -878,8 +878,138 @@ select dept_id
 from department
 where unit_id = (select unit_id from unit where unit_name = '제3본부');
 
+-- '제3본부'에 속한 모든 사원들의 휴가 사용 내역 조회
+select *
+from vacation
+where emp_id in (select emp_id 
+					from employee 
+					where dept_id in (select dept_id 
+										from department
+										where unit_id = (select unit_id from unit where unit_name = '제3본부')));
+
+-- [인라인뷰 : 메인쿼리의 테이블 자리에 들어가는 서브쿼리 형식]
+-- [휴가를 사용한 사원정보만!!] 
+-- 사원별 휴가사용 일수를 그룹핑하여, 사원아이디, 사원명, 입사일, 연봉 , 휴가사용일수를 조회해주세요.
+select e.emp_id, e.emp_name, e.hire_date, e.salary, v.duration
+from employee e, (select emp_id, sum(duration) as duration
+					from vacation
+					group by emp_id) v
+where e.emp_id = v.emp_id;
+select e.emp_id, e.emp_name, e.hire_date, e.salary, v.duration
+from employee e inner join (select emp_id, sum(duration) as duration
+					from vacation
+					group by emp_id) v
+on e.emp_id = v.emp_id;
+
+select emp_id, sum(duration) as duration
+from vacation
+group by emp_id;
+
+-- [휴가를 사용한 사원정보 + 사용하지 않은 사원 포함!]
+-- 사원별 휴가사용 일수를 그룹핑하여, 사원아이디, 사원명, 입사일, 연봉, 휴가사용일수를 조회해주세요.
+-- 사용일수 기준 내림차순 정렬
+-- 휴가를 사용하지 않은 사원은 기본값 0
+-- left outer join
+select e.emp_id, e.emp_name, e.hire_date, e.salary, ifnull(v.duration, 0) as duration
+from employee e left outer join (select emp_id, sum(duration) as duration
+									from vacation
+									group by emp_id) v
+on e.emp_id = v.emp_id
+order by duration desc;
+
+-- 1) 2016 ~ 2017년도 입사한 사원들의 정보 조회
+select * from employee where left(hire_date,4) between '2016' and '2017';
+-- 2) 1번의 실행 결과와 vacation 테이블을 조인하여 휴가사용 내역 출력
+select *
+from vacation v, (select * from employee where left(hire_date,4) between '2016' and '2017') e
+where v.emp_id = e.emp_id;
 
 
+select e.emp_id, e.emp_name, e.eng_name, e.gender, e.hire_date, e.retire_date, e.dept_id, e.phone, e.email, e.salary, v.reason
+from employee e, (select emp_id, reason from vacation) v 
+where e.emp_id = v.emp_id and left(hire_date,4) between '2016' and '2017';
+select e.emp_id, e.emp_name, e.eng_name, e.gender, e.hire_date, e.retire_date, e.dept_id, e.phone, e.email, e.salary, v.reason
+from employee e left outer join (select emp_id, reason from vacation) v 
+on e.emp_id = v.emp_id 
+where left(hire_date,4) between '2016' and '2017';
+
+select emp_id, reason from vacation;
+
+-- 1) 부서별 총급여, 평균급여를 구하여 30000 이상인 부서 조회
+select dept_id, format(sum(salary),0) as sum, format(avg(salary),0) as avg
+from employee
+group by dept_id
+having sum(salary) >= 30000;
+-- 2) 1번의 실행 결과와 employee 테이블을 조인하여 사원아이디, 사원명, 급여, 부서아이디, 부서명, 부서별 총급여, 평균급여 출력
+select e.emp_id, e.emp_name, e.salary, e.dept_id, d.dept_name, s.sum, s.avg
+from employee e, department d, (select dept_id, format(sum(salary),0) as sum, format(avg(salary),0) as avg
+								from employee
+								group by dept_id
+								having sum(salary) >= 30000) s
+where e.dept_id = d.dept_id and e.dept_id = s.dept_id;
+
+/********************************************************
+	테이블 결과 합치기 : union, union all
+    형식 > 	쿼리1 실행 결과 union 쿼리2 실행 결과
+			쿼리1 실행 결과 union all 쿼리2 실행 결과
+	** 실행결과 컬럼이 동일(컬러명, 데이터타입)
+*********************************************************/
+-- 영업부, 정보시스템 부서의 사원아이디, 사원명, 급여, 부서아이디 조회
+-- union : 영업 부서 사원들이 한번만 출력
+select emp_id, emp_name, salary, dept_id
+from employee
+where dept_id = (select dept_id from department where dept_name = '영업')
+union
+select emp_id, emp_name, salary, dept_id
+from employee
+where dept_id = (select dept_id from department where dept_name = '정보시스템')
+union
+select emp_id, emp_name, salary, dept_id
+from employee
+where dept_id = (select dept_id from department where dept_name = '영업');
+
+-- union all : 영업 부서 사원들이 중복되어 출력
+select emp_id, emp_name, salary, dept_id as dept
+from employee
+where dept_id = (select dept_id from department where dept_name = '영업')
+union all
+select emp_id, emp_name, salary, dept_id
+from employee
+where dept_id = (select dept_id from department where dept_name = '정보시스템')
+union all
+select emp_id, emp_name, salary, dept_id
+from employee
+where dept_id = (select dept_id from department where dept_name = '영업');
+
+/************************************************************
+	논리적인 테이블 : VIEW(뷰), SQL을 실행하여 생성된 결과를 가상테이블로 정의
+    뷰 생성 : create view [view 이름]
+			as [SQL 정의];
+	뷰 삭제 : drop view [view 이름]
+	** 뷰 생성시 권한을 할당 받아야 함 - mysql, maria 제외
+*************************************************************/
+select *
+from information_schema.views
+where table_schema = 'hrdb2019';
+
+-- 부서 총급여가 30000 이상인 테이블
+create view view_salary_sum
+as 
+select e.emp_id, e.emp_name, e.salary, e.dept_id, d.dept_name, s.sum, s.avg
+from employee e, department d, (select dept_id, format(sum(salary),0) as sum, format(avg(salary),0) as avg
+								from employee
+								group by dept_id
+								having sum(salary) >= 30000) s
+where e.dept_id = d.dept_id and e.dept_id = s.dept_id;
+
+-- view_salary_sum 실행
+select *
+from view_salary_sum;
+
+-- view_salary_sum 삭제
+drop view view_salary_sum;
+select * from information_schema.views
+where table_schema = 'hrdb2019';
 
 
 
