@@ -1077,20 +1077,163 @@ select * from employee_2016;
 
 /*+++++++++++++++++++++++++++++++++++++++++
 	데이터 생성(insert : C)
-    형식 > insert into [테이블명] {컬럼리스트...}
+    형식 > insert into [테이블명] (컬럼리스트...)
     values(데이터1, 데이터2 ...)
 +++++++++++++++++++++++++++++++++++++++++++*/
 show tables;
 desc emp;
-
-
-
-
-
-
-desc employee;
-desc vacation;
 select * from employee;
+
+insert into emp(emp_id, ename, gender, hire_date, salary)
+values('s001', '홍길동', 'm', now(), 1000);
+
+insert into emp(ename, emp_id, gender, salary, hire_date)
+values('s001', '홍길동', 'm', 1000, null);
+
+insert into emp(emp_id)
+values('s002');
+
+select * from emp;
+
+-- [테이블 절삭 : 테이블의 데이터만 영구 삭제]
+-- 형식 > truncate table [테이블명];
+truncate table emp;
+drop table emp;
+show tables;
+create table emp(
+	emp_id		char(4)			not null,
+    ename		varchar(10)		not null,
+    gender		char(1)			not null,
+    hire_date	datetime,
+    salary		int
+);
+
+insert into emp(emp_id, ename, gender, hire_date, salary)
+values('s001', '홍길동', 'm', now(), 1000);
+
+insert into emp
+values('s002', '이순신', 'm', sysdate(), 2000);
+
+insert into emp
+values('s003', '김유신', 'm', curdate(), 2000);
+
+desc emp;
+select * from emp;
+
+-- [자동 행번호 생성 : auto_increment]
+-- 정수형으로 번호를 생성하여 저장함, pk, unique 제약으로 설정된 컬럼에 주로 사용
+create table emp2(
+	emp_id		int				auto_increment		primary key,		-- primary key : unique + not null
+    ename		varchar(10)		not null,
+    gender		char(1)			not null,
+    hire_date	date,
+    salary		int
+);
+show tables;
+desc emp2;
+insert into emp2(ename, gender, hire_date, salary)
+values('홍길동', 'm', now(), 1000);
+
+select * from emp2;
+
+/************************************************************
+	테이블 변경 : alter table
+    형식 > alter table [테이블명]
+			add column [새로추가하는 컬럼명, 데이터타입] -- null 허용
+            modify column [변경하는 컬럼명, 데이터타입] -- 크기 고려
+            drop column [삭제하는 컬럼명]
+*************************************************************/
+show tables;
+select * from emp;
+
+-- phone(char, 13) 컬럼 추가, null 허용(기존 데이터가 있기 때문)
+alter table emp
+	add column phone char(13) null;
+desc emp;
+select * from emp;
+
+insert into emp
+values('s004', '홍홍', 'f', now(), 4000, '010-1234-1234');
+
+-- phone 컬럼의 크기 변경 : char(13) --> char(10)
+alter table emp
+	modify column phone char(10) null;	-- 저장된 데이터보다 크기가 작으면 에러 발생; 데이터 유실 위험 발생!!
+
+desc emp;
+
+-- phone 컬럼 삭제
+alter table emp
+	drop column phone;
+
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	데이터 수정(update : U)
+    형식 > update [테이블명] 
+			set (컬럼리스트...)
+			where [조건절 ~]
+	** set sql_safe_updates = 1 or 0;	
+    -- 1 : 업데이트 불가, 0 : 업데이트 가능
++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+select * from emp;
+set sql_safe_updates = 0;	-- 업데이트 모드 해제
+
+-- 홍길동의 급여를 6000으로 수정
+update emp
+set salary = 6000
+where emp_id = 's001';
+
+-- 김유신의 입사날짜를 '20210725'로 수정
+update emp
+set hire_date = cast('20210725' as datetime)
+where emp_id = 's003';
+
+update emp
+set hire_date = '20210725'
+where emp_id = 's003';
+
+-- emp2 테이블에 retire_date 컬럼 추가 : date
+-- 기존 데이터는 현재 날짜로 업데이트
+-- 업데이트 완료 후 retire_date 'no null' 설정 변경
+select * from emp2;
+alter table emp2
+add column retire_date date null;
+
+update emp2
+set retire_date = curdate()
+where retire_date is null;
+
+alter table emp2
+modify column retire_date date not null;
+desc emp2;
+
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	데이터 삭제(delete : D)
+    형식 > delete from [테이블명] 
+			where [조건절 ~]
+	** set sql_safe_updates = 1 or 0;	
+    -- 1 : 업데이트 불가, 0 : 업데이트 가능
++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+select * from emp;
+
+-- 이순신 사원 삭제
+delete from emp
+where emp_id = 's002';
+
+-- s004 사원 삭제
+delete from emp
+where emp_id = 's004';
+rollback;
+
+select @@autocommit;
+set autocommit = 0;
+
+
+
+
+/************************************************************
+	제약사항!!!
+*************************************************************/
+
+
 
 
 
