@@ -1283,9 +1283,80 @@ values('s0001', '홍길동', now(), 1000);
 
 select * from emp_const2;
 
+-- emp_const2 컬럼 추가 : phone, char(13) 컬럼 추가
+desc emp_const2;
+select * from emp_const2;
+alter table emp_const2
+add column phone char(13) null;
 
+-- 홍길동의 폰번호 업데이트, phone 컬럼을 not null 수정 
+set sql_safe_updates = 0;	-- 업데이트 모드 해제
+update emp_const2
+set phone = '010-1234-4567'
+where emp_id = 's0001';
+select * from emp_const2;
+alter table emp_const2
+modify column phone char(13) not null;
+desc emp_const2;
 
+-- phone 컬럼에 unique 제약 추가, 중복된 데이터 확인, null 입력 가능(단, 1개만)
+alter table emp_const2
+add constraint uni_phone unique(phone);
+desc emp_const2;
+select * from information_schema.table_constraints
+where table_name = 'emp_const2';
 
+-- phone 컬럼에 unique 제약 삭제
+alter table emp_const2
+drop constraint uni_phone;
+
+show tables;
+drop table emp;
+drop table emp2;
+
+-- department 테이블의 복사본 : dept, employee 테이블 복사본 : emp
+create table dept
+as 
+select * from department
+where unit_id is not null;
+
+show tables;
+desc dept;
+select * from dept;
+-- dept_id 컬럼에 primary key 제약 추가
+alter table dept
+add constraint pk_dept_id primary key(dept_id);
+select * from information_schema.table_constraints
+where table_name = 'dept';
+desc dept;
+
+-- 2018년도에 입사한 사원들만 복제
+create table emp
+as
+select * from employee
+where left(hire_date,4) = '2018';
+desc emp;
+select * from emp;
+select * from dept;
+
+-- emp 테이블 제약 사항 추가, primary key(emp_id)
+alter table emp
+add constraint pk_emp_id primary key(emp_id);
+select * from information_schema.table_constraints
+where table_name = 'emp';
+desc emp;
+
+-- foreign key(dept_id) 참조키 제약 추가
+alter table emp
+add constraint fk_dept_id foreign key(dept_id)
+references dept(dept_id);
+
+select * from emp;
+select * from dept;
+-- 고소해 부서이동 --> ACC
+update emp
+set dept_id = 'ACC'
+where emp_id = 'S0020';
 
 
 
