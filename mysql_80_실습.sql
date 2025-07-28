@@ -1726,4 +1726,6 @@ from (select distinct m.name, m.created_at, o.order_date, i.quantity, i.product_
 
 
 
+-- 6일차?
+
 
