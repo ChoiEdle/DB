@@ -1230,8 +1230,58 @@ set autocommit = 0;
 
 -- 5일차
 /************************************************************
-	제약사항!!!
+	constraint(제약사항) : 데이터의 무결성 원칙을 적용하기 위한 규칙
+    - unique(유니크 제약) : 중복방지 제약
+    - not null : null 값을 허용하지 않는 제약 :: 화면 구현시 유효성 체크로직과 연동!!
+    - primary key(기본키) : unique + not null 제약 설정
+    - foreign key(참조키) : 타 테이블의 기본키를 참조하는 테이블의 키 설정, 
+							참조하는 기본키의 데이터타입과 동일함
+	- default : 데이터 입력 시 기본으로 저장데이터는 값 설정
+    ** 제약사항은 테이블 생성 시 정의 가능함, 또는 테이블 수정으로도 변경, 추가 가능
+    - create table..., alter table...
 *************************************************************/
+use hrdb2019;
+select database();
+show tables;
+select * from information_schema.table_constraints
+where table_schema = 'hrdb2019';
+
+desc employee;
+desc department;
+
+-- 테이블 생성 : emp_const
+create table emp_const(
+	emp_id		char(4)			primary key,
+    emp_name	varchar(10)		not null,
+    hire_date	date,
+    salary		int
+);
+show tables;
+desc emp_const;
+insert into emp_const(emp_id, emp_name, hire_date, salary)
+values('s002', '홍길동', curdate(), 1000);
+select * from emp_const;
+insert into emp_const(emp_id, emp_name, hire_date, salary)
+values('s004', '이순신', null, null);
+
+desc emp_const;
+
+-- 테이블 생성 : emp_const2
+create table emp_const2(
+	emp_id		char(5),
+    emp_name	varchar(10)		not null,
+    hire_date	date,
+    salary		int,
+    constraint	pk_emp_const2 primary key(emp_id)
+);
+desc emp_const2;
+select * from information_schema.table_constraints
+where table_name = 'emp_const2';
+
+insert into emp_const2(emp_id, emp_name, hire_date, salary)
+values('s0001', '홍길동', now(), 1000);
+
+select * from emp_const2;
 
 
 
