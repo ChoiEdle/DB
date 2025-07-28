@@ -1351,12 +1351,105 @@ alter table emp
 add constraint fk_dept_id foreign key(dept_id)
 references dept(dept_id);
 
-select * from emp;
 select * from dept;
+-- ACC 
+-- ADV
+-- GEN
+-- HRD
+-- MKT
+-- SYS
+select * from emp;
 -- 고소해 부서이동 --> ACC
 update emp
 set dept_id = 'ACC'
 where emp_id = 'S0020';
+
+-- 홍길동 사원 추가
+desc emp;
+insert into emp
+values('S0001', '홍길동', null, 'M', curdate(), null, 'HRD', '010-1234-2345', 'hong@test.com', null);
+insert into emp
+values('S0002', '홍길동', null, 'M', curdate(), null, 'SYS', '010-1234-2345', 'hong@test.com', null);
+select * from emp;
+
+/*
+[학사관리 시스템 설계]
+1. 과목(SUBJECT) 테이블은 
+	컬럼 : SID(과목아이디), SNAME(과목명), SDATE(등록일:년월일 시분초)
+    SID는 기본키, 자동으로 생성한다.
+2. 학생(STUDENT) 테이블은 반드시 하나이상의 과목을 수강해야 한다. 
+	컬럼 : STID(학생아이디) 기본키, 자동생성
+		SNAME(학생명) 널허용x,
+		GENDER(성별)  문자1자 널허용x,
+		SID(과목아이디),
+		STDATE(등록일자) 년월일 시분초
+3. 교수(PROFESSOR) 테이블은 반드시 하나이상의 과목을 강의해야 한다.
+	컬럼 : PID(교수아이디) 기본키, 자동생성
+		NAME(교수명) 널허용x
+		SID(과목아이디),
+		PDATE(등록일자) 년월일 시분초
+*/
+create table subject(
+	SID		int 			primary key		auto_increment,
+    SNAME	varchar(10)		not null,
+    SDATE	datetime
+);
+create table student(
+	STID	int					primary key		auto_increment,
+    SNAME	varchar(10)			not null,
+    GENDER	char(1)				not null,
+	SID 	int,
+    STDATE	datetime,
+    constraint fk_sid_student	foreign key(sid)
+								references subject(sid)
+);
+create table professor(
+	PID			int 				primary key		auto_increment,
+    NAME		varchar(10)			not null,
+    SID			int,
+    PDATE		datetime,
+    constraint 	fk_sid_porfessor	foreign key(sid)
+									references subject(sid)
+);
+desc subject;
+desc student;
+desc professor;
+
+select * from information_schema.table_constraints
+where table_name in ('subject', 'student', 'professor');
+
+
+-- 과목 데이터 추가
+insert into subject(sname, sdate) values('java', now());
+insert into subject(sname, sdate) values('mysql', now());
+insert into subject(sname, sdate) values('html', now());
+insert into subject(sname, sdate) values('react', now());
+insert into subject(sname, sdate) values('node', now());
+
+select * from subject;
+select * from student;
+
+-- 학생 데이터 입력
+insert into student(sname, gender, sid, stdate)
+values('홍길동', 'm', 1, now());
+insert into student(sname, gender, sid, stdate)
+values('이순신', 'm', 3, now());
+insert into student(sname, gender, sid, stdate)
+values('김유신', 'm', 3, now());
+insert into student(sname, gender, sid, stdate)
+values('박보검', 'm', 4, now());
+insert into student(sname, gender, sid, stdate)
+values('아이유', 'f', 4, now());
+select * from student;
+
+-- 교수 데이터 추가
+insert into professor(name, sid, pdate) values('스미스', 1, now());
+insert into professor(name, sid, pdate) values('홍홍', 3, now());
+insert into professor(name, sid, pdate) values('김철수', 4, now());
+select * from professor;
+
+
+
 
 
 
