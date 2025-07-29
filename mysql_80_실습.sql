@@ -59,7 +59,7 @@ select emp_id, emp_name, gender, hire_date, salary from employee;
 -- 부서테이블의 모든 정보 조회
 select * from department;
 
---	AS : 컬럼명 별칭 부여
+-- 	AS : 컬럼명 별칭 부여
 --  형식> select [컬럼명 as 별칭, ...] from [테이블명];
 -- 사원테이블의 사번, 사원명, 성별, 입사일, 급여 컬럼을 조회한 한글 컬럼명으로 출력
 select emp_id as "사 번", emp_name as 사원명, gender as 성별, hire_date 입사일, salary 급여 from employee;
@@ -1923,7 +1923,7 @@ begin
 -- 참조하는 emp 테이블의 dept_id에 null값 업데이트
 update emp
 set dept_id = null
-where dept_id = old.dept_id;	-- old.dept_id : dept 테이블에서 삭제된 dept_id
+where dept_id = old.dept_id;	-- old.dept_id : dept 테이블에서 삭제된 dept_id(dept 테이블에서 삭제 전의 값)
 
 end $$
 delimiter ;
