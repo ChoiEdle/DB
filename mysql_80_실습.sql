@@ -1744,7 +1744,7 @@ emp_id, emp_name, concat(left(hire_date,4), '년도') as hire_date, phone, email
 from employee;
 
 -- rno 행번호 추가, 주문날짜(년,월,일), 가격(소수점 생략, 3자리 구분)
-select row_number() over() as no, t1.name, t1.created_at, left(t1.order_date,10) as order_date, 
+select row_number() over() as rno, t1.name, t1.created_at, left(t1.order_date,10) as order_date, 
 t1.quantity, p.name, format(floor(p.price),0) as price
 from (select distinct m.name, m.created_at, o.order_date, i.quantity, i.product_id
 		from member m, `order` o, orderitem i
@@ -1933,12 +1933,15 @@ drop trigger trg_dept_dept_id_delete;
 select * from information_schema.triggers;
 select * from dept;
 select * from emp;
+update emp
+set dept_id = 'ADV'
+where emp_id = 's0020';
 desc emp;
 -- emp 테이블의 dept_id 컬럼 null 허용 체크!!
 alter table emp
 modify column dept_id char(3) null;
 -- dept 테이블의 ACC 부서 삭제
-delete from dept where dept_id = 'ACC';
+delete from dept where dept_id = 'ADV';
 
 -- 사원 테이블의 급여 변경 시 로그 저정 :: 트리거 업데이트 이용
 select * from information_schema.triggers;
