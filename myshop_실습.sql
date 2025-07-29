@@ -375,6 +375,23 @@ inner join product p
 on d.product_id = p.product_id
 where p.product_name like '%청소기%';
 
+/**
+	서브쿼리
+*/
+-- Q13) 'mtkim', 'odoh', 'soyoukim', 'winterkim' 고객 주문의 주문번호, 고객아이디, 주문일시, 전체금액을 조회하세요.    
+-- Q14) '전주' 지역 고객의 아이디를 조회하세요.    
+-- Q15) 위 두 쿼리문을 조합해서 하위 쿼리를 사용해 '전주' 지역 고객 주문의 주문번호, 고객아이디, 주문일시, 전체금액을 조회하세요.
+-- Q16) 고객의 포인트 최댓값을 조회하세요.
+-- Q17) 하위 쿼리를 사용해 가장 포인트가 많은 고객의 이름, 아이디, 등록일, 포인트를 조회하세요.
+-- Q18) 하위 쿼리를 사용해 홍길동(gdhong) 고객보다 포인트가 많은 고객 이름, 아이디, 등록일, 포인트를 조회하세요.
+-- Q19) 하위 쿼리를 사용해 홍길동(gdhong) 고객과 같은 지역의 고객 이름, 아이디, 지역, 등록일, 포인트를 조회하세요.
+--      단, 고객 이름을 기준으로 오름차순 정렬해서 조회하세요.
+-- Q20) 하위 쿼리를 사용해 홍길동(gdhong) 고객보다 포인트가 많은 고객 이름, 아이디, 등록일, 포인트를 조회하고, 행번호를 추가하여 출력하세요.
+
+
+
+
+
 select * from sub_category;
 select * from product;
 select * from order_detail;
@@ -386,6 +403,12 @@ show databases;
 use myshop2019;
 select database();
 show tables;
+
+
+
+
+
+
 
 
 

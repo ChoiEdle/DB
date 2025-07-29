@@ -1875,7 +1875,7 @@ delete from dept where dept_id = 'GEN';		-- emp에서 참조하는 사원이 없
 -- 정주고 사원 삭제
 delete from emp where emp_id = 'S0019';
 
--- 1. 참조 관계 설정 시 on delete cascade
+-- 1. 참조 관계 설정 시 on delete cascade, on update cascade
 -- 부모의 참조 컬럼이 삭제되면, 자식의 행이 함께 삭제됨
 -- 뉴스테이블의 기사 컬럼이 삭제되며, 댓글테이블의 댓글이 함께 삭제
 -- 게시판의 게시글 삭제 시 게시글의 댓글이 함께 삭제
@@ -1892,17 +1892,89 @@ create table reply(
     bid		int				not null,
     rdate	datetime,
     constraint fk_reply_bid	foreign key(bid)
-				references board(bid) on delete cascade
+				references board(bid) on delete cascade on update cascade
 );
+desc reply;
+select * from board;
+insert into board(title, content, bdate)
+values('test', 'test', curdate());
+select * from reply;
+insert into reply(content, bid, rdate)
+values('reply test', 1, curdate());
 
+-- bid, 1 삭제
+delete from board where bid = 1;
 
 -- 2. 트리거를 사용하여 부모의 참조컬럼 삭제 시 자식의 참조 컬럼 데이터를 null로 변경
+-- **** 오라클 데이터베이스에서는 트리거 실행 가능!
+-- **** innoDB 형식의 데이터베이스인 mysql, maria는 트리거 실행 불가능!!
+-- 이유는 innoDB형식은 트리거 실행 전 참조관계를 먼저 체크하여 에러 발생 시킴!!
+select * from information_schema.triggers;
 
+/*****************************************************************/
+-- dept 테이블의 row 삭제시(dept_id 컬럼 포함), 참조하는 emp 테이블의 dept_id에 null값 업데이트
+delimiter $$
 
+create trigger trg_dept_dept_id_delete
+after delete on dept	-- 테이블명
+for each row
+begin
 
+-- 참조하는 emp 테이블의 dept_id에 null값 업데이트
+update emp
+set dept_id = null
+where dept_id = old.dept_id;	-- old.dept_id : dept 테이블에서 삭제된 dept_id
 
+end $$
+delimiter ;
+/****************************************************************/
+drop trigger trg_dept_dept_id_delete;
 
+select * from information_schema.triggers;
+select * from dept;
+select * from emp;
+desc emp;
+-- emp 테이블의 dept_id 컬럼 null 허용 체크!!
+alter table emp
+modify column dept_id char(3) null;
+-- dept 테이블의 ACC 부서 삭제
+delete from dept where dept_id = 'ACC';
 
+-- 사원 테이블의 급여 변경 시 로그 저정 :: 트리거 업데이트 이용
+select * from information_schema.triggers;
+create table salary_log(
+	emp_id		char(5)		primary key,
+    old_salary	int,
+    new_salary	int,
+    change_date	date
+);
+desc salary_log;
+
+/*****************************************************************/
+delimiter $$
+drop table salary_log;
+create trigger trg_salary_update
+after update on employee	-- 테이블명
+for each row
+begin
+-- 사원 테이블의 급여 변경 시 로그 저장, old.salary(기존급여), new.salary(새로운급여)
+	if old.salary <> new.salary then
+		insert into salary_log(emp_id, old_salary, new_salary, change_date)
+					values(old.emp_id, old.salary, new.salary, now());
+    end if;
+
+end $$
+delimiter ;
+/****************************************************************/
+select * from information_schema.triggers;
+select * from salary_log;
+update employee set salary = 8000
+where emp_id = 'S0020';
+drop trigger trg_salary_update;
+
+select * from employee;
+
+show tables;
 
 
 
