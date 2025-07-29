@@ -1916,7 +1916,7 @@ select * from information_schema.triggers;
 delimiter $$
 
 create trigger trg_dept_dept_id_delete
-after delete on dept	-- 테이블명
+before delete on dept	-- 테이블명
 for each row
 begin
 
@@ -1953,9 +1953,9 @@ create table salary_log(
 );
 desc salary_log;
 
+drop table salary_log;
 /*****************************************************************/
 delimiter $$
-drop table salary_log;
 create trigger trg_salary_update
 after update on employee	-- 테이블명
 for each row
